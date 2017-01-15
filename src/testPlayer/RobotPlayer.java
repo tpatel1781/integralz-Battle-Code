@@ -93,18 +93,18 @@ public strictfp class RobotPlayer {
                     {
                         rc.buildRobot(RobotType.TANK, dir);
                     }
-                //else if (rc.canPlantTree(dir))
-                    //{
+                else if (rc.canPlantTree(dir))
+                    {
                         //rc.plantTree(dir);
-                    //}
-                //else if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01)
-                    //{
-                    //    rc.buildRobot(RobotType.SOLDIER, dir);
-                    //}
-                //else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady())
-                  //  {
-                  //      rc.buildRobot(RobotType.LUMBERJACK, dir);
-                    //}
+                    }
+                else if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01)
+                    {
+                        rc.buildRobot(RobotType.SOLDIER, dir);
+                    }
+                else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady())
+                    {
+                        rc.buildRobot(RobotType.LUMBERJACK, dir);
+                    }
 
                 // Move randomly
                 tryMove(randomDirection());
@@ -194,7 +194,7 @@ public strictfp class RobotPlayer {
     static void runLumberjack() throws GameActionException {
         System.out.println("I'm a lumberjack!");
         Team enemy = rc.getTeam().opponent();
-
+        boolean friendlyFire=false;
         // The code you want your robot to perform every round should be in this loop
         while (true) {
 
@@ -202,9 +202,13 @@ public strictfp class RobotPlayer {
             try {
 
                 // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
-                RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS, enemy);
-
-                if(robots.length > 0 && !rc.hasAttacked()) {
+                RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS, null);
+                for(int i = 0; i<=robots.length; i++){
+                    if(!(robots[i].getTeam().opponent().equals(enemy))){
+                        friendlyFire = true;
+                    }
+                }
+                if(robots.length > 0 && !rc.hasAttacked() && !friendlyFire) {
                     // Use strike() to hit all nearby robots!
                     rc.strike();
                 } else {
@@ -223,7 +227,7 @@ public strictfp class RobotPlayer {
                         tryMove(randomDirection());
                     }
                 }
-
+                friendlyFire = false;
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
 
