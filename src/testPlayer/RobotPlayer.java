@@ -32,10 +32,7 @@ public strictfp class RobotPlayer {
                 break;
         }
 	}
-    static void runTank() throws GameActionException{
-        System.out.println("Im a tank");
 
-    }
     static void runArchon() throws GameActionException {
         System.out.println("I'm an archon!");
 
