@@ -107,16 +107,16 @@ public strictfp class RobotPlayer {
                   //      rc.buildRobot(RobotType.LUMBERJACK, dir);
                     //}
 
-
+                TreeInfo[] f = rc.senseNearbyTrees();
                 TreeInfo[] c = rc.senseNearbyTrees(2);
-                if (rc.canShake(c[0].getID()))
-                    {
-                        rc.shake(c[0].getID());
-                    }
 
+                MapLocation myLocation = rc.getLocation();
+                MapLocation treeLocation = f[0].getLocation();
+                Direction toTree = myLocation.directionTo(treeLocation);
 
-                tryMove(randomDirection());
+                tryMove(toTree);
 
+             if    
                 // Move randomly
 
 
