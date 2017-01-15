@@ -93,10 +93,10 @@ public strictfp class RobotPlayer {
                     {
                         rc.buildRobot(RobotType.TANK, dir);
                     }
-                else if (rc.canPlantTree(dir))
-                    {
-                        rc.plantTree(dir);
-                    }
+                //else if (rc.canPlantTree(dir))
+                    //{
+                        //rc.plantTree(dir);
+                    //}
                 //else if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01)
                     //{
                     //    rc.buildRobot(RobotType.SOLDIER, dir);
