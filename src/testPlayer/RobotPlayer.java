@@ -94,29 +94,24 @@ public strictfp class RobotPlayer {
                     {
                         rc.buildRobot(RobotType.TANK, dir);
                     }
-                //else if (rc.canPlantTree(dir))
-                    //{
-                        //rc.plantTree(dir);
-                    //}
-                //else if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01)
-                    //{
-                    //    rc.buildRobot(RobotType.SOLDIER, dir);
-                    //}
-                //else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady())
-                  //  {
-                  //      rc.buildRobot(RobotType.LUMBERJACK, dir);
-                    //}
+                else if (rc.canPlantTree(dir))
+                    {
+                        rc.plantTree(dir);
+                    }
+                else if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01)
+                    {
+                        rc.buildRobot(RobotType.SOLDIER, dir);
+                    }
+                else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady())
+                    {
+                        rc.buildRobot(RobotType.LUMBERJACK, dir);
+                    }
 
-                TreeInfo[] f = rc.senseNearbyTrees();
-                TreeInfo[] c = rc.senseNearbyTrees(2);
 
-                MapLocation myLocation = rc.getLocation();
-                MapLocation treeLocation = f[0].getLocation();
-                Direction toTree = myLocation.directionTo(treeLocation);
 
-                tryMove(toTree);
 
-             if    
+                tryMove(randomDirection());
+
                 // Move randomly
 
 
