@@ -182,7 +182,7 @@ public strictfp class RobotPlayer {
     static void runLumberjack() throws GameActionException {
         System.out.println("I'm a lumberjack!");
         Team enemy = rc.getTeam().opponent();
-
+        boolean friendlyFire = false;
         // The code you want your robot to perform every round should be in this loop
         while (true) {
 
