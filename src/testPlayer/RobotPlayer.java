@@ -1,5 +1,6 @@
 package testPlayer;
 import battlecode.common.*;
+import java.util.Random;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
@@ -49,7 +50,7 @@ public strictfp class RobotPlayer {
                 Direction dir = randomDirection();
 
                 // Randomly attempt to build a gardener in this direction
-                if (rc.canHireGardener(dir) && (rc.getRobotCount() < 3)) {
+                if (rc.canHireGardener(dir) && (rc.getRobotCount() < 7)) {
                     rc.hireGardener(dir);
                 }
 
@@ -106,8 +107,18 @@ public strictfp class RobotPlayer {
                   //      rc.buildRobot(RobotType.LUMBERJACK, dir);
                     //}
 
-                // Move randomly
+
+                TreeInfo[] c = rc.senseNearbyTrees(2);
+                if (rc.canShake(c[0].getID()))
+                    {
+                        rc.shake(c[0].getID());
+                    }
+
+
                 tryMove(randomDirection());
+
+                // Move randomly
+
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
