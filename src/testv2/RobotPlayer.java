@@ -137,7 +137,7 @@ public strictfp class RobotPlayer {
                 Clock.yield();
 
             } catch (Exception e) {
-                System.out.println("Soldier2 Exception");
+                System.out.println("Soldier Exception");
                 e.printStackTrace();
             }
         }
