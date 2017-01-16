@@ -246,7 +246,7 @@ public strictfp class RobotPlayer {
                 // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
                 RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS, null);
                 for(int i = 0; i < robots.length; i++){
-                    if(!robots[i].getTeam().opponent().equals(enemy)){
+                    if(robots[i].getTeam().opponent().equals(enemy)){
                         friendlyFire = true;
                     }
                 }
@@ -275,12 +275,12 @@ public strictfp class RobotPlayer {
                         MapLocation treeLocation = trees[0].location;
                         Direction toTree = myLocation.directionTo(treeLocation);
                         tryMove(toTree);
-                    }else if (robots.length > 0 && (treeChop == false)) {
-                        MapLocation myLocation = rc.getLocation();
-                        MapLocation enemyLocation = robots[0].getLocation();
-                        Direction toEnemy = myLocation.directionTo(enemyLocation);
-                        tryMove(toEnemy);
-                    }else if(treeChop == false) {
+                    }//else if (robots.length > 0 && (treeChop == false)) {
+                       // MapLocation myLocation = rc.getLocation();
+                        //MapLocation enemyLocation = robots[0].getLocation();
+                        //Direction toEnemy = myLocation.directionTo(enemyLocation);
+                        //tryMove(toEnemy);
+                    else if(treeChop == false) {
                         // Move Randomly
                         tryMove(randomDirection());
                     }
