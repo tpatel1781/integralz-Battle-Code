@@ -74,6 +74,14 @@ public strictfp class RobotPlayer {
 
     static void runGardener() throws GameActionException {
         System.out.println("I'm a gardener!");
+        int i=0;
+
+        // Listen for home archon's location
+        int xPos = rc.readBroadcast(0);
+        int yPos = rc.readBroadcast(1);
+        MapLocation archonLoc = new MapLocation(xPos,yPos);
+
+
 
         // The code you want your robot to perform every round should be in this loop
         while (true) {
@@ -81,23 +89,25 @@ public strictfp class RobotPlayer {
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
 
-                // Listen for home archon's location
-                int xPos = rc.readBroadcast(0);
-                int yPos = rc.readBroadcast(1);
-                MapLocation archonLoc = new MapLocation(xPos,yPos);
-
-                // Generate a random direction
-                Direction dir = randomDirection();
-
-                // Randomly attempt to build a soldier or lumberjack in this direction
-                if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01) {
-                    rc.buildRobot(RobotType.SOLDIER, dir);
-                } else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady()) {
-                    rc.buildRobot(RobotType.LUMBERJACK, dir);
+                while(i<=3) {
+                    if(i==0) {
+                        rc.plantTree(Direction.getNorth());
+                        i++;
+                    } else if (i==1) {
+                        rc.plantTree(Direction.getWest());
+                        i++;
+                    } else if (i==2) {
+                        rc.plantTree(Direction.getSouth());
+                        i++;
+                    } else if (i==3) {
+                        if (rc.canBuildRobot(RobotType.SOLDIER, Direction.getEast()) && Math.random() < .01) {
+                            rc.buildRobot(RobotType.SOLDIER, Direction.getEast());
+                        } else if (rc.canBuildRobot(RobotType.LUMBERJACK, Direction.getEast()) && Math.random() < .01 && rc.isBuildReady()) {
+                            rc.buildRobot(RobotType.LUMBERJACK, Direction.getEast());
+                        }
+                        i=-1;
+                    }
                 }
-
-                // Move randomly
-                tryMove(randomDirection());
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
