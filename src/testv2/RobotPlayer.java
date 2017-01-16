@@ -77,8 +77,6 @@ public strictfp class RobotPlayer {
     static void runGardener() throws GameActionException {
         System.out.println("I'm a gardener!");
         int i=0;
-        boolean treePlanted;
-
 
         // The code you want your robot to perform every round should be in this loop
         while (true) {
@@ -91,6 +89,9 @@ public strictfp class RobotPlayer {
                 int yPos = rc.readBroadcast(1);
                 MapLocation archonLoc = new MapLocation(xPos,yPos);
 
+                // Generate a random direction
+                Direction dir = randomDirection();
+
                 RobotInfo[] robots = rc.senseNearbyRobots(-1);
                 for(int j=0; i<robots.length; j++) {
                     if(robots[j].getType().equals(RobotType.ARCHON)) {
@@ -98,28 +99,13 @@ public strictfp class RobotPlayer {
                         Direction toArchon = myLocation.directionTo(archonLoc);
                         MapLocation away = myLocation.subtract(toArchon);
                         Direction awayFromArchon = myLocation.directionTo(away);
-                        rc.move(awayFromArchon);
+                        tryMove(awayFromArchon);
                     }
                 }
 
-                while(i<=3) {
-                    if(i==0) {
-                        if (rc.canPlantTree(Direction.getNorth())) {
-                            rc.plantTree(Direction.getNorth());
-                        } i++;
-                    } else if (i==1) {
-                        if (rc.canPlantTree(Direction.getWest())) {
-                            rc.plantTree(Direction.getWest());
-                        } i++;
-                    } else if (i==2) {
-                        if (rc.canPlantTree(Direction.getSouth())) {
-                            rc.plantTree(Direction.getSouth());
-                        } i++;
-                    } else if (i==3) {
-                        if (rc.canPlantTree(Direction.getEast())) {
-                            rc.plantTree(Direction.getEast());
-                        } i++;
-                    }
+                // Randomly attempt to build a soldier or lumberjack in this direction
+                if (rc.canBuildRobot(RobotType.LUMBERJACK, dir)) {
+                    rc.buildRobot(RobotType.LUMBERJACK, dir);
                 }
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
