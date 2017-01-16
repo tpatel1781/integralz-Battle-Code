@@ -270,16 +270,16 @@ public strictfp class RobotPlayer {
                     // no close trees, so search for trees within sight radius
                     trees = rc.senseNearbyTrees(-1);
                     // If there is a robot, move towards it
-                    /**if (robots.length > 0 && (treeChop == false)) {
-                        MapLocation myLocation = rc.getLocation();
-                        MapLocation enemyLocation = robots[0].getLocation();
-                        Direction toEnemy = myLocation.directionTo(enemyLocation);
-                        tryMove(toEnemy); */
                     if (trees.length > 0 && (treeChop == false)) {
                         MapLocation myLocation = rc.getLocation();
                         MapLocation treeLocation = trees[0].location;
                         Direction toTree = myLocation.directionTo(treeLocation);
                         tryMove(toTree);
+                    }else if (robots.length > 0 && (treeChop == false)) {
+                        MapLocation myLocation = rc.getLocation();
+                        MapLocation enemyLocation = robots[0].getLocation();
+                        Direction toEnemy = myLocation.directionTo(enemyLocation);
+                        tryMove(toEnemy);
                     }else if(treeChop == false) {
                         // Move Randomly
                         tryMove(randomDirection());
