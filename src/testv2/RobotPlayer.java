@@ -1,6 +1,8 @@
 package testv2;
 import battlecode.common.*;
 
+import java.lang.reflect.Array;
+
 public strictfp class RobotPlayer {
     static RobotController rc;
 
@@ -55,7 +57,7 @@ public strictfp class RobotPlayer {
                 }
 
                 // Move randomly
-                tryMove(randomDirection());
+                // tryMove(randomDirection());
 
                 // Broadcast archon's location for other robots on the team to know
                 MapLocation myLocation = rc.getLocation();
@@ -75,12 +77,7 @@ public strictfp class RobotPlayer {
     static void runGardener() throws GameActionException {
         System.out.println("I'm a gardener!");
         int i=0;
-
-        // Listen for home archon's location
-        int xPos = rc.readBroadcast(0);
-        int yPos = rc.readBroadcast(1);
-        MapLocation archonLoc = new MapLocation(xPos,yPos);
-
+        boolean treePlanted;
 
 
         // The code you want your robot to perform every round should be in this loop
@@ -88,6 +85,22 @@ public strictfp class RobotPlayer {
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
+
+                // Listen for home archon's location
+                int xPos = rc.readBroadcast(0);
+                int yPos = rc.readBroadcast(1);
+                MapLocation archonLoc = new MapLocation(xPos,yPos);
+
+                RobotInfo[] robots = rc.senseNearbyRobots(-1);
+                for(int j=0; i<robots.length; j++) {
+                    if(robots[j].getType().equals(RobotType.ARCHON)) {
+                        MapLocation myLocation = rc.getLocation();
+                        Direction toArchon = myLocation.directionTo(archonLoc);
+                        MapLocation away = myLocation.subtract(toArchon);
+                        Direction awayFromArchon = myLocation.directionTo(away);
+                        rc.move(awayFromArchon);
+                    }
+                }
 
                 while(i<=3) {
                     if(i==0) {
