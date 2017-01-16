@@ -94,7 +94,7 @@ public strictfp class RobotPlayer {
                     rc.buildRobot(RobotType.SOLDIER, dir);
                 } else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady()) {
                     rc.buildRobot(RobotType.LUMBERJACK, dir);
-                } else if (rc.canBuildRobot(RobotType.SCOUT, dir) && Math.random() < .01 && rc.isBuildReady())
+                }
 
                 // Move randomly
                 tryMove(randomDirection());
@@ -157,13 +157,7 @@ public strictfp class RobotPlayer {
                 MapLocation myLocation = rc.getLocation();
 
                 // See if there are any nearby enemy robots
-                RobotInfo[] robots = rc.senseNearbyRobots( 11, enemy);
-                if(robots != null) {
-
-                    rc.broadcast(4, (int) robots[0].location.x);
-                    rc.broadcast(5, (int) robots[0].location.y);
-
-                }
+                RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
 
                 // If there are some...
                 if (robots.length > 0) {
