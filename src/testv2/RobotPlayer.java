@@ -55,7 +55,7 @@ public strictfp class RobotPlayer {
                 }
 
                 // Move randomly
-                //tryMove(randomDirection());
+                tryMove(randomDirection());
 
                 // Broadcast archon's location for other robots on the team to know
                 MapLocation myLocation = rc.getLocation();
@@ -167,7 +167,13 @@ public strictfp class RobotPlayer {
                 MapLocation myLocation = rc.getLocation();
 
                 // See if there are any nearby enemy robots
-                RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
+                RobotInfo[] robots = rc.senseNearbyRobots( 11, enemy);
+                if(robots != null) {
+
+                    rc.broadcast(4, (int) robots[0].location.x);
+                    rc.broadcast(5, (int) robots[0].location.y);
+
+                }
 
                 // If there are some...
                 if (robots.length > 0) {
@@ -240,7 +246,7 @@ public strictfp class RobotPlayer {
                 // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
                 RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS, null);
                 for(int i = 0; i < robots.length; i++){
-                    if(robots[i].getTeam().opponent().equals(enemy)){
+                    if(!robots[i].getTeam().opponent().equals(enemy)){
                         friendlyFire = true;
                     }
                 }
