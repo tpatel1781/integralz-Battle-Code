@@ -101,12 +101,21 @@ public strictfp class RobotPlayer {
                         Direction awayFromArchon = myLocation.directionTo(away);
                         tryMove(awayFromArchon);
                     }
+                    // Move randomly
+                    tryMove(randomDirection());
                 }
 
                 // Randomly attempt to build a soldier or lumberjack in this direction
-                if (rc.canBuildRobot(RobotType.LUMBERJACK, dir)) {
-                    rc.buildRobot(RobotType.LUMBERJACK, dir);
+                if(Math.random() > 0.5) {
+                    if (rc.canBuildRobot(RobotType.LUMBERJACK, dir)) {
+                        rc.buildRobot(RobotType.LUMBERJACK, dir);
+                    }
+                } else {
+                    if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+                        rc.buildRobot(RobotType.SOLDIER, dir);
+                    }
                 }
+
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
