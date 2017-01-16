@@ -230,7 +230,7 @@ public strictfp class RobotPlayer {
                 // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
                 RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS, null);
                 for(int i = 0; i < robots.length; i++){
-                    if(!robots[i].getTeam().opponent().equals(enemy)){
+                    if(robots[i].getTeam().opponent().equals(enemy)){
                         friendlyFire = true;
                     }
                 }
