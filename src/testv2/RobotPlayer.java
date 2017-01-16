@@ -104,21 +104,21 @@ public strictfp class RobotPlayer {
 
                 while(i<=3) {
                     if(i==0) {
-                        rc.plantTree(Direction.getNorth());
-                        i++;
+                        if (rc.canPlantTree(Direction.getNorth())) {
+                            rc.plantTree(Direction.getNorth());
+                        } i++;
                     } else if (i==1) {
-                        rc.plantTree(Direction.getWest());
-                        i++;
+                        if (rc.canPlantTree(Direction.getWest())) {
+                            rc.plantTree(Direction.getWest());
+                        } i++;
                     } else if (i==2) {
-                        rc.plantTree(Direction.getSouth());
-                        i++;
+                        if (rc.canPlantTree(Direction.getSouth())) {
+                            rc.plantTree(Direction.getSouth());
+                        } i++;
                     } else if (i==3) {
-                        if (rc.canBuildRobot(RobotType.SOLDIER, Direction.getEast()) && Math.random() < .01) {
-                            rc.buildRobot(RobotType.SOLDIER, Direction.getEast());
-                        } else if (rc.canBuildRobot(RobotType.LUMBERJACK, Direction.getEast()) && Math.random() < .01 && rc.isBuildReady()) {
-                            rc.buildRobot(RobotType.LUMBERJACK, Direction.getEast());
-                        }
-                        i=-1;
+                        if (rc.canPlantTree(Direction.getEast())) {
+                            rc.plantTree(Direction.getEast());
+                        } i++;
                     }
                 }
 
