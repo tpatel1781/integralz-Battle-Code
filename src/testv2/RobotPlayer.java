@@ -269,6 +269,7 @@ public strictfp class RobotPlayer {
         System.out.println("I'm a lumberjack!");
         Team enemy = rc.getTeam().opponent();
         boolean friendlyFire = false;
+        boolean treeChop = false;
         // The code you want your robot to perform every round should be in this loop
         while (true) {
 
@@ -278,32 +279,48 @@ public strictfp class RobotPlayer {
                 // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
                 RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS, null);
                 for(int i = 0; i < robots.length; i++){
-                    if(!robots[i].getTeam().opponent().equals(enemy)){
+                    if(robots[i].getTeam().opponent().equals(enemy)){
                         friendlyFire = true;
                     }
+                }
+                TreeInfo[] trees = rc.senseNearbyTrees(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS);
+                if(trees.length > 0){
+                    // for(int j = 0; j< robots.length; j++){
+                    if(rc.canChop(trees[0].location) && !trees[0].getTeam().equals(rc.getTeam())){
+                        // if(trees[j].containedBullets > 0 || trees[j].containedRobot != null) {
+                        rc.chop(trees[0].ID);
+                        treeChop = true;
+                        // }
+                    }
+                    // }
                 }
                 if(robots.length > 0 && !rc.hasAttacked() && !friendlyFire) {
                     // Use strike() to hit all nearby robots!
                     rc.strike();
                 } else {
                     // No close robots, so search for robots within sight radius
-                    robots = rc.senseNearbyRobots(-1,enemy);
-
+                    robots = rc.senseNearbyRobots(-1, enemy);
+                    // no close trees, so search for trees within sight radius
+                    trees = rc.senseNearbyTrees(-1);
                     // If there is a robot, move towards it
-                    if(robots.length > 0) {
+                    if (trees.length > 0 && (treeChop == false)) {
                         MapLocation myLocation = rc.getLocation();
-                        MapLocation enemyLocation = robots[0].getLocation();
-                        Direction toEnemy = myLocation.directionTo(enemyLocation);
-
-                        tryMove(toEnemy);
-                    } else {
+                        MapLocation treeLocation = trees[0].location;
+                        Direction toTree = myLocation.directionTo(treeLocation);
+                        tryMove(toTree);
+                    }//else if (robots.length > 0 && (treeChop == false)) {
+                    // MapLocation myLocation = rc.getLocation();
+                    //MapLocation enemyLocation = robots[0].getLocation();
+                    //Direction toEnemy = myLocation.directionTo(enemyLocation);
+                    //tryMove(toEnemy);
+                    else if(treeChop == false) {
                         // Move Randomly
                         tryMove(randomDirection());
                     }
 
                 }
                 friendlyFire = false;
-
+                treeChop = false;
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
 
