@@ -98,7 +98,7 @@ public strictfp class RobotPlayer {
                 // Randomly attempt to build a soldier or lumberjack in this direction
                 if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() > 0.5) {
                     rc.buildRobot(RobotType.SOLDIER, dir);
-                    numberOfSoldiers++;
+                    rc.broadcast(123, rc.readBroadcast(123) + 1);
                 } else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && rc.isBuildReady()) {
                     rc.buildRobot(RobotType.LUMBERJACK, dir);
                 }
