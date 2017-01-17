@@ -244,12 +244,16 @@ public strictfp class RobotPlayer {
         Team enemy = rc.getTeam().opponent();
         boolean friendlyFire = false;
         boolean treeChop = false;
+        MapLocation treeLoc = new MapLocation(0,0);
+        MapLocation empty = new MapLocation(0,0);
         // The code you want your robot to perform every round should be in this loop
         while (true) {
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
-
+                int xPos = rc.readBroadcast(12);
+                int yPos = rc.readBroadcast(13);
+                treeLoc = new MapLocation(xPos,yPos);
                 // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
                 RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS, null);
                 for (int i = 0; i < robots.length; i++) {
@@ -287,11 +291,13 @@ public strictfp class RobotPlayer {
                     //MapLocation enemyLocation = robots[0].getLocation();
                     //Direction toEnemy = myLocation.directionTo(enemyLocation);
                     //tryMove(toEnemy);
-                    else if (treeChop == false) {
+                    else if(treeChop == false && !treeLoc.equals(empty)) {
+                        Direction toTrees = rc.getLocation().directionTo(treeLoc);
+                        tryMove(toTrees);
+                    }else if (treeChop == false) {
                         // Move Randomly
                         tryMove(randomDirection());
                     }
-
                 }
                 friendlyFire = false;
                 treeChop = false;
