@@ -11,12 +11,12 @@ public strictfp class RobotPlayer {
      * If this method returns, the robot dies!
      **/
     @SuppressWarnings("unused")
+    static int numberOfSoldiers = 0;
     public static void run(RobotController rc) throws GameActionException {
 
         // This is the RobotController object. You use it to perform actions from this robot,
         // and to get information on its current status.
         RobotPlayer.rc = rc;
-
         // Here, we've separated the controls into a different method for each RobotType.
         // You can add the missing ones or rewrite this into your own control structure.
         switch (rc.getType()) {
@@ -123,7 +123,10 @@ public strictfp class RobotPlayer {
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
 
             try {
-
+                if (rc.getHealth() < 6 && numberOfSoldiers > 0)
+                {
+                    numberOfSoldiers--;
+                }
                 MapLocation myLocation = rc.getLocation();
 
                 // See if there are any nearby enemy robots
@@ -132,7 +135,7 @@ public strictfp class RobotPlayer {
                 MapLocation[] arcArray = rc.getInitialArchonLocations(rc.getTeam());
 
                 MapLocation arcLocation = arcArray[0];
-                // If there are some...
+                // If there are some enemies detected nearby...
                 if (robots.length > 0) {
                     // And we have enough bullets, and haven't attacked yet this turn..
                     rc.broadcast(2, Math.round(robots[0].location.x));
@@ -166,28 +169,43 @@ public strictfp class RobotPlayer {
                 MapLocation target = new MapLocation(x, y);
 
                 //Movment control conditions and statments, with combat priority
+                //Move towards target if not at range 6, to get into attack range
                 if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 6) && rc.senseNearbyBullets(2).length == 0)
                 {
                     System.out.println("toward target");
                     tryMove(myLocation.directionTo(target));
                 }
+                //pull back if too close, within range of 6 or if bullets nearby
                 else if ((rc.readBroadcast(2) > 0) && (6 > (myLocation.distanceTo(target)) || rc.senseNearbyBullets(2).length > 0))
                 {
                     System.out.println("away from target");
                     tryMove(rc.getLocation().directionTo(target).opposite());
                 }
+                //Auxilary movment, set distance from archon + spacing
                 else
                 {
+
+                    //Move towards archon if further than distance of 45 from archon
+                    if (rc.getLocation().distanceTo(arcLocation) > 45 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
                     if (rc.getLocation().distanceTo(arcLocation) > 40 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
+
                     {
-                      System.out.println("toward archon");
-                    tryMove(rc.getLocation().directionTo(arcLocation));
+                        System.out.println("toward archon");
+                        tryMove(rc.getLocation().directionTo(arcLocation));
                     }
+                    //Move away from archon if closer than distance 35 from archon
                     else if (rc.getLocation().distanceTo(arcLocation) < 35 && rc.canMove(rc.getLocation().directionTo(arcLocation).opposite()))
-                    {
-                      System.out.println("away from archon");
-                      tryMove(rc.getLocation().directionTo(arcLocation).opposite());
-                    }
+                {
+                    System.out.println("away from archon");
+                    tryMove(rc.getLocation().directionTo(arcLocation).opposite());
+                }
+
+                    //Move away from friendly[0] if soldier, need better way to do this
+                    else if (friendly.length > 0 && friendly[0].type == RobotType.SOLDIER)
+                {
+                    tryMove(rc.getLocation().directionTo(friendly[0].location).opposite());
+                }
+
                     else
                     {
                         System.out.println("random");
