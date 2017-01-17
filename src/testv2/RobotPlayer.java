@@ -131,8 +131,9 @@ public strictfp class RobotPlayer {
                     // And we have enough bullets, and haven't attacked yet this turn...
                     rc.broadcast(2, Math.round(robots[0].location.x));
                     rc.broadcast(3, Math.round(robots[0].location.y));
+                    RobotInfo[] friends = rc.senseNearbyRobots(-1, rc.getTeam());
 
-                    if (rc.canFireTriadShot()) {
+                    if (rc.canFireTriadShot() && rc.senseNearbyRobots(-1, rc.getTeam()).length == 0) {
                         // ...Then fire a bullet in the direction of the enemy.
                         rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
                     }
