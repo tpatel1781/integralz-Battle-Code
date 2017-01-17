@@ -178,7 +178,7 @@ public strictfp class RobotPlayer {
                 }
                 else
                 {
-                    if (rc.getLocation().distanceTo(arcLocation) > 40 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
+                    if (rc.getLocation().distanceTo(arcLocation) > 45 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
                     {
                       System.out.println("toward archon");
                     tryMove(rc.getLocation().directionTo(arcLocation));
@@ -187,6 +187,10 @@ public strictfp class RobotPlayer {
                     {
                       System.out.println("away from archon");
                       tryMove(rc.getLocation().directionTo(arcLocation).opposite());
+                    }
+                    else if (friendly.length > 0 && friendly[0].type == RobotType.SOLDIER)
+                    {
+                        tryMove(rc.getLocation().directionTo(friendly[0].location).opposite());
                     }
                     else
                     {
