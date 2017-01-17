@@ -76,7 +76,6 @@ public strictfp class RobotPlayer {
 
     static void runGardener() throws GameActionException {
         System.out.println("I'm a gardener!");
-        int i = 0;
 
         // The code you want your robot to perform every round should be in this loop
         while (true) {
@@ -87,34 +86,20 @@ public strictfp class RobotPlayer {
                 // Listen for home archon's location
                 int xPos = rc.readBroadcast(0);
                 int yPos = rc.readBroadcast(1);
-                MapLocation archonLoc = new MapLocation(xPos, yPos);
+                MapLocation archonLoc = new MapLocation(xPos,yPos);
 
                 // Generate a random direction
                 Direction dir = randomDirection();
 
-                RobotInfo[] robots = rc.senseNearbyRobots(-1);
-                for (int j = 0; i < robots.length; j++) {
-                    if (robots[j].getType().equals(RobotType.ARCHON)) {
-                        MapLocation myLocation = rc.getLocation();
-                        Direction toArchon = myLocation.directionTo(archonLoc);
-                        MapLocation away = myLocation.subtract(toArchon);
-                        Direction awayFromArchon = myLocation.directionTo(away);
-                        tryMove(awayFromArchon);
-                    }
-                    // Move randomly
-                    tryMove(randomDirection());
+                // Randomly attempt to build a soldier or lumberjack in this direction
+                if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01) {
+                    rc.buildRobot(RobotType.SOLDIER, dir);
+                } else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady()) {
+                    rc.buildRobot(RobotType.LUMBERJACK, dir);
                 }
 
-                // Randomly attempt to build a soldier or lumberjack in this direction
-                if (Math.random() > 0.5) {
-                    if (rc.canBuildRobot(RobotType.LUMBERJACK, dir)) {
-                        rc.buildRobot(RobotType.LUMBERJACK, dir);
-                    }
-                } else {
-                    if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                        rc.buildRobot(RobotType.SOLDIER, dir);
-                    }
-                }
+                // Move randomly
+                tryMove(randomDirection());
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
@@ -134,7 +119,6 @@ public strictfp class RobotPlayer {
         while (true) {
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
-
             try {
                 MapLocation myLocation = rc.getLocation();
 
@@ -144,46 +128,11 @@ public strictfp class RobotPlayer {
                 // If there are some...
                 if (robots.length > 0) {
                     // And we have enough bullets, and haven't attacked yet this turn...
-                    rc.broadcast(2, Math.round(robots[0].location.x));
-                    rc.broadcast(3, Math.round(robots[0].location.y));
-
                     if (rc.canFireSingleShot()) {
                         // ...Then fire a bullet in the direction of the enemy.
                         rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
                     }
-
-
-                } else {
-
-                    rc.broadcast(1, 0);
-                    rc.broadcast(2, 0);
                 }
-
-                //RobotInfo[] friendlyBots = rc.senseNearbyRobots(1000 ,rc.getTeam());
-                //int numberOfSoldiers = 0;
-
-                //for (int i=0; i <= (rc.senseNearbyRobots(1000, rc.getTeam()).length); i++)
-                // {
-
-                // if (friendlyBots[i].type == RobotType.SOLDIER)
-                // {
-                //     numberOfSoldiers++ ;
-                // }
-
-                //  }
-
-                float x = (rc.readBroadcast(2));
-                float y = (rc.readBroadcast(3));
-
-                MapLocation target = new MapLocation(x, y);
-
-                if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 5)) {
-
-                    tryMove(myLocation.directionTo(target));
-                } else {
-                    tryMove(randomDirection());
-                }
-
 
                 // Move randomly
                 tryMove(randomDirection());
