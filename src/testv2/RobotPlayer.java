@@ -222,7 +222,7 @@ public strictfp class RobotPlayer {
 
                 // See if there are any nearby enemy robots
                 RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
-                TreeInfo[] trees = rc.senseNearbyTrees(-1, enemy);
+                TreeInfo[] trees = rc.senseNearbyTrees(-1);
 
                 if(treeChecker && trees.length > 0) {
                         rc.broadcast(12, (int) trees[0].location.x);
