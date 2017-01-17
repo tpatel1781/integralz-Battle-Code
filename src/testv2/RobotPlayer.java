@@ -183,7 +183,7 @@ public strictfp class RobotPlayer {
                 }
                 else
                 {
-                    if (rc.getLocation().distanceTo(arcLocation) > 45 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
+                    if (rc.getLocation().distanceTo(arcLocation) > 40 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
                     {
                       System.out.println("toward archon");
                     tryMove(rc.getLocation().directionTo(arcLocation));
@@ -192,10 +192,6 @@ public strictfp class RobotPlayer {
                     {
                       System.out.println("away from archon");
                       tryMove(rc.getLocation().directionTo(arcLocation).opposite());
-                    }
-                    else if (friendly.length > 0 && friendly[0].type == RobotType.SOLDIER)
-                    {
-                        tryMove(rc.getLocation().directionTo(friendly[0].location).opposite());
                     }
                     else
                     {
@@ -338,12 +334,14 @@ public strictfp class RobotPlayer {
                 }
                 TreeInfo[] trees = rc.senseNearbyTrees(RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS);
                 if (trees.length > 0) {
-                    // for(int j = 0; j< robots.length; j++){
                     if (rc.canChop(trees[0].location) && !trees[0].getTeam().equals(rc.getTeam())) {
-                        // if(trees[j].containedBullets > 0 || trees[j].containedRobot != null) {
+                        if(trees[0].containedBullets > 0) {
+                            rc.broadcast(12, (int) trees[0].location.x);
+                            rc.broadcast(13, (int) trees[0].location.y);
+                        }
                         rc.chop(trees[0].ID);
                         treeChop = true;
-                        // }
+
                     }
                     // }
                 }
