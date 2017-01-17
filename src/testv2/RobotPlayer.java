@@ -152,6 +152,7 @@ public strictfp class RobotPlayer {
         System.out.println("I'm a scout!");
         Team enemy = rc.getTeam().opponent();
         boolean enemyChecker = true;
+        boolean treeChecker = true;
         // The code you want your robot to perform every round should be in this loop
         while (true) {
 
@@ -160,16 +161,29 @@ public strictfp class RobotPlayer {
                 MapLocation myLocation = rc.getLocation();
 
                 // See if there are any nearby enemy robots
-                RobotInfo[] robots = rc.senseNearbyRobots(11, enemy);
+                RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
+                TreeInfo[] trees = rc.senseNearbyTrees(-1, enemy);
+
+                if(treeChecker && trees.length > 0) {
+                        rc.broadcast(12, (int) trees[0].location.x);
+                        rc.broadcast(13, (int) trees[0].location.y);
+                        treeChecker = false;
+
+                }
 
                 if(enemyChecker) {
                     if (robots.length > 0) {
                         rc.broadcast(4, (int) robots[0].location.x);
                         rc.broadcast(5, (int) robots[0].location.y);
                         enemyChecker = false;
+
+                        // Move randomly
+                        tryMove(randomDirection());
                     }
                 }else if(robots.length > 0){
-                    // And we have enough bullets, and haven't attacked yet this turn...
+
+                    tryMove(rc.getLocation().directionTo(robots[0].location));
+
                     if (rc.canFireSingleShot()) {
                         // ...Then fire a bullet in the direction of the enemy.
                         rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
@@ -177,8 +191,7 @@ public strictfp class RobotPlayer {
                     }
                 }
 
-                // Move randomly
-                tryMove(randomDirection());
+
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
