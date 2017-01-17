@@ -172,13 +172,14 @@ public strictfp class RobotPlayer {
                 }
 
                 if(enemyChecker) {
+                    // Move randomly
+                    tryMove(randomDirection());
+
                     if (robots.length > 0) {
                         rc.broadcast(4, (int) robots[0].location.x);
                         rc.broadcast(5, (int) robots[0].location.y);
                         enemyChecker = false;
 
-                        // Move randomly
-                        tryMove(randomDirection());
                     }
                 }else if(robots.length > 0){
 
