@@ -11,7 +11,7 @@ public strictfp class RobotPlayer {
      * If this method returns, the robot dies!
      **/
     @SuppressWarnings("unused")
-    static int numberOfSoldiers = 0;
+
     public static void run(RobotController rc) throws GameActionException {
 
         // This is the RobotController object. You use it to perform actions from this robot,
@@ -124,13 +124,13 @@ public strictfp class RobotPlayer {
 
         // The code you want your robot to perform every round should be in this loop
         while (true) {
-            System.out.println("Current Soldier Count:" + numberOfSoldiers);
+            System.out.println("Current Soldier Count:" + rc.readBroadcast(123));
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
 
             try {
-                if (rc.getHealth() < 6 && numberOfSoldiers > 0)
+                if (rc.getHealth() < 6 && rc.readBroadcast(123) > 0)
                 {
-                    numberOfSoldiers--;
+                    rc.broadcast(123,rc.readBroadcast(123) - 1);
                 }
                 MapLocation myLocation = rc.getLocation();
 
@@ -148,7 +148,7 @@ public strictfp class RobotPlayer {
                     RobotInfo[] friends = rc.senseNearbyRobots(-1, rc.getTeam());
 
                     rc.broadcast(707,rc.getRoundNum());
-
+                    
                     if (rc.canFireTriadShot() && rc.senseNearbyRobots(-1, rc.getTeam()).length == 0 && ((rc.getLocation().directionTo(robots[0].location)).degreesBetween(rc.getLocation().directionTo(arcLocation))) > 90) {
                         // ...Then fire a bullet in the direction of the enemy.
                         rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
