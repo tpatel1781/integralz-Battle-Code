@@ -129,6 +129,9 @@ public strictfp class RobotPlayer {
                 // See if there are any nearby enemy robots
                 RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
                 RobotInfo[] friendly = rc.senseNearbyRobots(-1,rc.getTeam());
+                MapLocation[] arcArray = rc.getInitialArchonLocations(rc.getTeam());
+
+                MapLocation arcLocation = arcArray[0];
                 // If there are some...
                 if (robots.length > 0) {
                     // And we have enough bullets, and haven't attacked yet this turn..
@@ -138,18 +141,18 @@ public strictfp class RobotPlayer {
 
                     rc.broadcast(707,rc.getRoundNum());
 
-                    if (rc.canFireTriadShot() && rc.senseNearbyRobots(-1, rc.getTeam()).length == 0) {
+                    if (rc.canFireTriadShot() && rc.senseNearbyRobots(-1, rc.getTeam()).length == 0 && ((rc.getLocation().directionTo(robots[0].location)).degreesBetween(rc.getLocation().directionTo(arcLocation))) > 90) {
                         // ...Then fire a bullet in the direction of the enemy.
                         rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
                     }
-                    else if (rc.canFireSingleShot() && rc.getLocation().directionTo(robots[0].location).degreesBetween(rc.getLocation().directionTo(friends[0].location)) > 10)
+                    else if (rc.canFireSingleShot())
                     {
                         rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
                     }
                 }
                 else
                 {
-                    if ((rc.getRoundNum()-rc.readBroadcast(707)) > 30)
+                    if ((rc.getRoundNum()-rc.readBroadcast(707)) > 20)
                     {
                         System.out.println("Broadcast:" + (rc.getRoundNum()-rc.readBroadcast(707)));
                         rc.broadcast(1,0);
@@ -162,26 +165,37 @@ public strictfp class RobotPlayer {
 
                 MapLocation target = new MapLocation(x, y);
 
-                if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 6) && rc.senseNearbyBullets(2).length == 0) {
+                //Movment control conditions and statments, with combat priority
+                if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 6) && rc.senseNearbyBullets(2).length == 0)
+                {
+                    System.out.println("toward target");
                     tryMove(myLocation.directionTo(target));
-                    //if (firstRound)
-                      //  {
-                        //    firstRound = false;
-                        //}
                 }
-                else if ((rc.readBroadcast(2) > 0) && (6 > (myLocation.distanceTo(target)) || rc.senseNearbyBullets(2).length > 0)){
+                else if ((rc.readBroadcast(2) > 0) && (6 > (myLocation.distanceTo(target)) || rc.senseNearbyBullets(2).length > 0))
+                {
+                    System.out.println("away from target");
                     tryMove(rc.getLocation().directionTo(target).opposite());
                 }
                 else
                 {
-                    //rc.broadcast(1,0);
-                    //rc.broadcast(2,0);
-
-                    tryMove(randomDirection());
+                    if (rc.getLocation().distanceTo(arcLocation) > 40 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
+                    {
+                      System.out.println("toward archon");
+                    tryMove(rc.getLocation().directionTo(arcLocation));
+                    }
+                    else if (rc.getLocation().distanceTo(arcLocation) < 35 && rc.canMove(rc.getLocation().directionTo(arcLocation).opposite()))
+                    {
+                      System.out.println("away from archon");
+                      tryMove(rc.getLocation().directionTo(arcLocation).opposite());
+                    }
+                    else
+                    {
+                        System.out.println("random");
+                        tryMove(randomDirection());
+                    }
                 }
 
-                //rc.broadcast(1,0);
-                //rc.broadcast(2,0);
+
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
