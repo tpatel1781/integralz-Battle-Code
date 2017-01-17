@@ -1,6 +1,8 @@
 package testv2;
 import battlecode.common.*;
 
+import java.lang.reflect.Array;
+
 public strictfp class RobotPlayer {
     static RobotController rc;
 
@@ -55,12 +57,12 @@ public strictfp class RobotPlayer {
                 }
 
                 // Move randomly
-                //tryMove(randomDirection());
+                // tryMove(randomDirection());
 
                 // Broadcast archon's location for other robots on the team to know
                 MapLocation myLocation = rc.getLocation();
-                rc.broadcast(0,(int)myLocation.x);
-                rc.broadcast(1,(int)myLocation.y);
+                rc.broadcast(0, (int) myLocation.x);
+                rc.broadcast(1, (int) myLocation.y);
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
@@ -74,6 +76,7 @@ public strictfp class RobotPlayer {
 
     static void runGardener() throws GameActionException {
         System.out.println("I'm a gardener!");
+        int i = 0;
 
         // The code you want your robot to perform every round should be in this loop
         while (true) {
@@ -84,21 +87,35 @@ public strictfp class RobotPlayer {
                 // Listen for home archon's location
                 int xPos = rc.readBroadcast(0);
                 int yPos = rc.readBroadcast(1);
-                MapLocation archonLoc = new MapLocation(xPos,yPos);
+                MapLocation archonLoc = new MapLocation(xPos, yPos);
 
                 // Generate a random direction
                 Direction dir = randomDirection();
 
-                // Randomly attempt to build a soldier or lumberjack in this direction
-                if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01) {
-                    rc.buildRobot(RobotType.SOLDIER, dir);
-                }
-                else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady()) {
-                    rc.buildRobot(RobotType.LUMBERJACK, dir);
+                RobotInfo[] robots = rc.senseNearbyRobots(-1);
+                for (int j = 0; i < robots.length; j++) {
+                    if (robots[j].getType().equals(RobotType.ARCHON)) {
+                        MapLocation myLocation = rc.getLocation();
+                        Direction toArchon = myLocation.directionTo(archonLoc);
+                        MapLocation away = myLocation.subtract(toArchon);
+                        Direction awayFromArchon = myLocation.directionTo(away);
+                        tryMove(awayFromArchon);
+                    }
+                    // Move randomly
+                    tryMove(randomDirection());
                 }
 
-                // Move randomly
-                tryMove(randomDirection());
+                // Randomly attempt to build a soldier or lumberjack in this direction
+                if (Math.random() > 0.5) {
+                    if (rc.canBuildRobot(RobotType.LUMBERJACK, dir)) {
+                        rc.buildRobot(RobotType.LUMBERJACK, dir);
+                    }
+                } else {
+                    if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+                        rc.buildRobot(RobotType.SOLDIER, dir);
+                    }
+                }
+
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
@@ -109,11 +126,6 @@ public strictfp class RobotPlayer {
             }
         }
     }
-
-
-
-
-
 
     static void runSoldier() throws GameActionException {
         System.out.println("I'm an soldier!");
@@ -133,8 +145,8 @@ public strictfp class RobotPlayer {
                 // If there are some...
                 if (robots.length > 0) {
                     // And we have enough bullets, and haven't attacked yet this turn...
-                    rc.broadcast(2,Math.round(robots[0].location.x));
-                    rc.broadcast(3,Math.round(robots[0].location.y));
+                    rc.broadcast(2, Math.round(robots[0].location.x));
+                    rc.broadcast(3, Math.round(robots[0].location.y));
 
                     if (rc.canFireSingleShot()) {
                         // ...Then fire a bullet in the direction of the enemy.
@@ -142,42 +154,36 @@ public strictfp class RobotPlayer {
                     }
 
 
-                }
-                else
-                    {
+                } else {
 
-                        rc.broadcast(1,0);
-                        rc.broadcast(2,0);
-                    }
+                    rc.broadcast(1, 0);
+                    rc.broadcast(2, 0);
+                }
 
                 //RobotInfo[] friendlyBots = rc.senseNearbyRobots(1000 ,rc.getTeam());
                 //int numberOfSoldiers = 0;
 
                 //for (int i=0; i <= (rc.senseNearbyRobots(1000, rc.getTeam()).length); i++)
-                  // {
+                // {
 
-                      // if (friendlyBots[i].type == RobotType.SOLDIER)
-                       // {
-                       //     numberOfSoldiers++ ;
-                       // }
+                // if (friendlyBots[i].type == RobotType.SOLDIER)
+                // {
+                //     numberOfSoldiers++ ;
+                // }
 
-                 //  }
+                //  }
 
                 float x = (rc.readBroadcast(2));
                 float y = (rc.readBroadcast(3));
 
-                MapLocation target = new MapLocation(x,y);
+                MapLocation target = new MapLocation(x, y);
 
-                if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 5) )
-                    {
+                if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 5)) {
 
-                        tryMove(myLocation.directionTo(target));
-                    }
-                else
-                    {
-                        tryMove(randomDirection());
-                    }
-
+                    tryMove(myLocation.directionTo(target));
+                } else {
+                    tryMove(randomDirection());
+                }
 
 
                 // Move randomly
@@ -193,6 +199,7 @@ public strictfp class RobotPlayer {
         }
     }
 
+
     static void runScout() throws GameActionException {
         System.out.println("I'm a scout!");
         Team enemy = rc.getTeam().opponent();
@@ -205,7 +212,13 @@ public strictfp class RobotPlayer {
                 MapLocation myLocation = rc.getLocation();
 
                 // See if there are any nearby enemy robots
-                RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
+                RobotInfo[] robots = rc.senseNearbyRobots(11, enemy);
+                if (robots != null) {
+
+                    rc.broadcast(4, (int) robots[0].location.x);
+                    rc.broadcast(5, (int) robots[0].location.y);
+
+                }
 
                 // If there are some...
                 if (robots.length > 0) {
@@ -277,16 +290,16 @@ public strictfp class RobotPlayer {
             try {
 
                 // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
-                RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS, null);
-                for(int i = 0; i < robots.length; i++){
-                    if(robots[i].getTeam().opponent().equals(enemy)){
+                RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS, null);
+                for (int i = 0; i < robots.length; i++) {
+                    if (robots[i].getTeam().opponent().equals(enemy)) {
                         friendlyFire = true;
                     }
                 }
-                TreeInfo[] trees = rc.senseNearbyTrees(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS);
-                if(trees.length > 0){
+                TreeInfo[] trees = rc.senseNearbyTrees(RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS);
+                if (trees.length > 0) {
                     // for(int j = 0; j< robots.length; j++){
-                    if(rc.canChop(trees[0].location) && !trees[0].getTeam().equals(rc.getTeam())){
+                    if (rc.canChop(trees[0].location) && !trees[0].getTeam().equals(rc.getTeam())) {
                         // if(trees[j].containedBullets > 0 || trees[j].containedRobot != null) {
                         rc.chop(trees[0].ID);
                         treeChop = true;
@@ -294,7 +307,7 @@ public strictfp class RobotPlayer {
                     }
                     // }
                 }
-                if(robots.length > 0 && !rc.hasAttacked() && !friendlyFire) {
+                if (robots.length > 0 && !rc.hasAttacked() && !friendlyFire) {
                     // Use strike() to hit all nearby robots!
                     rc.strike();
                 } else {
@@ -313,7 +326,7 @@ public strictfp class RobotPlayer {
                     //MapLocation enemyLocation = robots[0].getLocation();
                     //Direction toEnemy = myLocation.directionTo(enemyLocation);
                     //tryMove(toEnemy);
-                    else if(treeChop == false) {
+                    else if (treeChop == false) {
                         // Move Randomly
                         tryMove(randomDirection());
                     }
@@ -333,10 +346,11 @@ public strictfp class RobotPlayer {
 
     /**
      * Returns a random Direction
+     *
      * @return a random Direction
      */
     static Direction randomDirection() {
-        return new Direction((float)Math.random() * 2 * (float)Math.PI);
+        return new Direction((float) Math.random() * 2 * (float) Math.PI);
     }
 
     /**
@@ -347,14 +361,14 @@ public strictfp class RobotPlayer {
      * @throws GameActionException
      */
     static boolean tryMove(Direction dir) throws GameActionException {
-        return tryMove(dir,20,3);
+        return tryMove(dir, 20, 3);
     }
 
     /**
      * Attempts to move in a given direction, while avoiding small obstacles direction in the path.
      *
-     * @param dir The intended direction of movement
-     * @param degreeOffset Spacing between checked directions (degrees)
+     * @param dir           The intended direction of movement
+     * @param degreeOffset  Spacing between checked directions (degrees)
      * @param checksPerSide Number of extra directions checked on each side, if intended direction was unavailable
      * @return true if a move was performed
      * @throws GameActionException
@@ -371,15 +385,15 @@ public strictfp class RobotPlayer {
         boolean moved = false;
         int currentCheck = 1;
 
-        while(currentCheck<=checksPerSide) {
+        while (currentCheck <= checksPerSide) {
             // Try the offset of the left side
-            if(rc.canMove(dir.rotateLeftDegrees(degreeOffset*currentCheck))) {
-                rc.move(dir.rotateLeftDegrees(degreeOffset*currentCheck));
+            if (rc.canMove(dir.rotateLeftDegrees(degreeOffset * currentCheck))) {
+                rc.move(dir.rotateLeftDegrees(degreeOffset * currentCheck));
                 return true;
             }
             // Try the offset on the right side
-            if(rc.canMove(dir.rotateRightDegrees(degreeOffset*currentCheck))) {
-                rc.move(dir.rotateRightDegrees(degreeOffset*currentCheck));
+            if (rc.canMove(dir.rotateRightDegrees(degreeOffset * currentCheck))) {
+                rc.move(dir.rotateRightDegrees(degreeOffset * currentCheck));
                 return true;
             }
             // No move performed, try slightly further
@@ -410,7 +424,7 @@ public strictfp class RobotPlayer {
         float theta = propagationDirection.radiansBetween(directionToRobot);
 
         // If theta > 90 degrees, then the bullet is traveling away from us and we can break early
-        if (Math.abs(theta) > Math.PI/2) {
+        if (Math.abs(theta) > Math.PI / 2) {
             return false;
         }
 
@@ -418,7 +432,7 @@ public strictfp class RobotPlayer {
         // This is the distance of a line that goes from myLocation and intersects perpendicularly with propagationDirection.
         // This corresponds to the smallest radius circle centered at our location that would intersect with the
         // line that is the path of the bullet.
-        float perpendicularDist = (float)Math.abs(distToRobot * Math.sin(theta)); // soh cah toa :)
+        float perpendicularDist = (float) Math.abs(distToRobot * Math.sin(theta)); // soh cah toa :)
 
         return (perpendicularDist <= rc.getType().bodyRadius);
     }
