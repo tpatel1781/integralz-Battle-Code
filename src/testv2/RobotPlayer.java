@@ -111,6 +111,8 @@ public strictfp class RobotPlayer {
         }
     }
 
+
+
     static void runSoldier() throws GameActionException {
         System.out.println("I'm an soldier!");
         Team enemy = rc.getTeam().opponent();
@@ -121,47 +123,39 @@ public strictfp class RobotPlayer {
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
 
             try {
+
                 MapLocation myLocation = rc.getLocation();
 
                 // See if there are any nearby enemy robots
                 RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
-
+                RobotInfo[] friendly = rc.senseNearbyRobots(-1,rc.getTeam());
                 // If there are some...
                 if (robots.length > 0) {
-                    // And we have enough bullets, and haven't attacked yet this turn...
+                    // And we have enough bullets, and haven't attacked yet this turn..
                     rc.broadcast(2, Math.round(robots[0].location.x));
                     rc.broadcast(3, Math.round(robots[0].location.y));
                     RobotInfo[] friends = rc.senseNearbyRobots(-1, rc.getTeam());
+
+                    rc.broadcast(707,rc.getRoundNum());
 
                     if (rc.canFireTriadShot() && rc.senseNearbyRobots(-1, rc.getTeam()).length == 0) {
                         // ...Then fire a bullet in the direction of the enemy.
                         rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
                     }
-                    else if (rc.canFireSingleShot())
+                    else if (rc.canFireSingleShot() && rc.getLocation().directionTo(robots[0].location).degreesBetween(rc.getLocation().directionTo(friends[0].location)) > 10)
                     {
                         rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
                     }
-
-
                 }
                 else
                 {
-                    //rc.broadcast(2,0);
-                    //rc.broadcast(3,0);
+                    if ((rc.getRoundNum()-rc.readBroadcast(707)) > 30)
+                    {
+                        System.out.println("Broadcast:" + (rc.getRoundNum()-rc.readBroadcast(707)));
+                        rc.broadcast(1,0);
+                        rc.broadcast(2,0);
+                    }
                 }
-
-                //RobotInfo[] friendlyBots = rc.senseNearbyRobots(1000 ,rc.getTeam());
-                //int numberOfSoldiers = 0;
-
-                //for (int i=0; i <= (rc.senseNearbyRobots(1000, rc.getTeam()).length); i++)
-                // {
-
-                // if (friendlyBots[i].type == RobotType.SOLDIER)
-                // {
-                //     numberOfSoldiers++ ;
-                // }
-
-                //  }
 
                 float x = (rc.readBroadcast(2));
                 float y = (rc.readBroadcast(3));
@@ -169,9 +163,13 @@ public strictfp class RobotPlayer {
                 MapLocation target = new MapLocation(x, y);
 
                 if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 6) && rc.senseNearbyBullets(2).length == 0) {
-
                     tryMove(myLocation.directionTo(target));
-                } else if (6 > (myLocation.distanceTo(target)) || rc.senseNearbyBullets(2).length > 0){
+                    //if (firstRound)
+                      //  {
+                        //    firstRound = false;
+                        //}
+                }
+                else if ((rc.readBroadcast(2) > 0) && (6 > (myLocation.distanceTo(target)) || rc.senseNearbyBullets(2).length > 0)){
                     tryMove(rc.getLocation().directionTo(target).opposite());
                 }
                 else
