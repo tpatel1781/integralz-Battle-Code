@@ -143,6 +143,11 @@ public strictfp class RobotPlayer {
 
 
                 }
+                else
+                {
+                    //rc.broadcast(2,0);
+                    //rc.broadcast(3,0);
+                }
 
                 //RobotInfo[] friendlyBots = rc.senseNearbyRobots(1000 ,rc.getTeam());
                 //int numberOfSoldiers = 0;
@@ -162,10 +167,10 @@ public strictfp class RobotPlayer {
 
                 MapLocation target = new MapLocation(x, y);
 
-                if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 5) && rc.senseNearbyBullets(2).length == 0) {
+                if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 6) && rc.senseNearbyBullets(2).length == 0) {
 
                     tryMove(myLocation.directionTo(target));
-                } else if (5 > (myLocation.distanceTo(target))){
+                } else if (6 > (myLocation.distanceTo(target)) || rc.senseNearbyBullets(2).length > 0){
                     tryMove(rc.getLocation().directionTo(target).opposite());
                 }
                 else
