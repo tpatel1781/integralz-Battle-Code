@@ -119,6 +119,7 @@ public strictfp class RobotPlayer {
         while (true) {
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
+
             try {
                 MapLocation myLocation = rc.getLocation();
 
@@ -128,14 +129,55 @@ public strictfp class RobotPlayer {
                 // If there are some...
                 if (robots.length > 0) {
                     // And we have enough bullets, and haven't attacked yet this turn...
-                    if (rc.canFireSingleShot()) {
+                    rc.broadcast(2, Math.round(robots[0].location.x));
+                    rc.broadcast(3, Math.round(robots[0].location.y));
+
+                    if (rc.canFireTriadShot()) {
                         // ...Then fire a bullet in the direction of the enemy.
+                        rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
+                    }
+                    else if (rc.canFireSingleShot())
+                    {
                         rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
                     }
+
+
                 }
 
-                // Move randomly
-                tryMove(randomDirection());
+                //RobotInfo[] friendlyBots = rc.senseNearbyRobots(1000 ,rc.getTeam());
+                //int numberOfSoldiers = 0;
+
+                //for (int i=0; i <= (rc.senseNearbyRobots(1000, rc.getTeam()).length); i++)
+                // {
+
+                // if (friendlyBots[i].type == RobotType.SOLDIER)
+                // {
+                //     numberOfSoldiers++ ;
+                // }
+
+                //  }
+
+                float x = (rc.readBroadcast(2));
+                float y = (rc.readBroadcast(3));
+
+                MapLocation target = new MapLocation(x, y);
+
+                if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 5) && rc.senseNearbyBullets(2).length == 0) {
+
+                    tryMove(myLocation.directionTo(target));
+                } else if (5 > (myLocation.distanceTo(target))){
+                    tryMove(rc.getLocation().directionTo(target).opposite());
+                }
+                else
+                {
+                    //rc.broadcast(1,0);
+                    //rc.broadcast(2,0);
+
+                    tryMove(randomDirection());
+                }
+
+                //rc.broadcast(1,0);
+                //rc.broadcast(2,0);
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
