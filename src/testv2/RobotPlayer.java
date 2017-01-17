@@ -183,36 +183,31 @@ public strictfp class RobotPlayer {
                     tryMove(rc.getLocation().directionTo(target).opposite());
                 }
                 //Auxilary movment, set distance from archon + spacing
-                else
+                //Move towards archon if further than distance of 45 from archon
+                else if (rc.getLocation().distanceTo(arcLocation) > 45 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
                 {
-
-                    //Move towards archon if further than distance of 45 from archon
-                    if (rc.getLocation().distanceTo(arcLocation) > 45 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
-                    if (rc.getLocation().distanceTo(arcLocation) > 40 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
-
-                    {
-                        System.out.println("toward archon");
-                        tryMove(rc.getLocation().directionTo(arcLocation));
-                    }
+                    System.out.println("toward archon");
+                    tryMove(rc.getLocation().directionTo(arcLocation));
+                }
                     //Move away from archon if closer than distance 35 from archon
-                    else if (rc.getLocation().distanceTo(arcLocation) < 35 && rc.canMove(rc.getLocation().directionTo(arcLocation).opposite()))
+                else if (rc.getLocation().distanceTo(arcLocation) < 35 && rc.canMove(rc.getLocation().directionTo(arcLocation).opposite()))
                 {
                     System.out.println("away from archon");
                     tryMove(rc.getLocation().directionTo(arcLocation).opposite());
                 }
 
                     //Move away from friendly[0] if soldier, need better way to do this
-                    else if (friendly.length > 0 && friendly[0].type == RobotType.SOLDIER)
+                else if (friendly.length > 0 && friendly[0].type == RobotType.SOLDIER)
                 {
                     tryMove(rc.getLocation().directionTo(friendly[0].location).opposite());
                 }
 
-                    else
-                    {
-                        System.out.println("random");
-                        tryMove(randomDirection());
-                    }
+                else
+                {
+                    System.out.println("random");
+                    tryMove(randomDirection());
                 }
+
 
 
 
