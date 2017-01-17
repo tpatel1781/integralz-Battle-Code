@@ -161,12 +161,14 @@ public strictfp class RobotPlayer {
 
                 // See if there are any nearby enemy robots
                 RobotInfo[] robots = rc.senseNearbyRobots(11, enemy);
-                if (robots != null) {
+
+
+                /* if (robots != null) {
 
                     rc.broadcast(4, (int) robots[0].location.x);
                     rc.broadcast(5, (int) robots[0].location.y);
 
-                }
+                } */
 
                 // If there are some...
                 if (robots.length > 0) {
