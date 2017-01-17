@@ -309,6 +309,10 @@ public strictfp class RobotPlayer {
                         friendlyFire = true;
                     }
                 }
+                if (robots.length > 0 && !rc.hasAttacked() && !friendlyFire) {
+                    // Use strike() to hit all nearby robots!
+                    rc.strike();
+                }
                 TreeInfo[] trees = rc.senseNearbyTrees(RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS);
                 if (trees.length > 0) {
                     // for(int j = 0; j< robots.length; j++){
@@ -320,10 +324,8 @@ public strictfp class RobotPlayer {
                     }
                     // }
                 }
-                if (robots.length > 0 && !rc.hasAttacked() && !friendlyFire) {
-                    // Use strike() to hit all nearby robots!
-                    rc.strike();
-                } else {
+
+                if(treeChop == false) {
                     // No close robots, so search for robots within sight radius
                     robots = rc.senseNearbyRobots(-1, enemy);
                     // no close trees, so search for trees within sight radius
