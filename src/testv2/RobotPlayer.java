@@ -151,7 +151,7 @@ public strictfp class RobotPlayer {
     static void runScout() throws GameActionException {
         System.out.println("I'm a scout!");
         Team enemy = rc.getTeam().opponent();
-
+        boolean enemyChecker = true;
         // The code you want your robot to perform every round should be in this loop
         while (true) {
 
@@ -162,20 +162,18 @@ public strictfp class RobotPlayer {
                 // See if there are any nearby enemy robots
                 RobotInfo[] robots = rc.senseNearbyRobots(11, enemy);
 
-
-                /* if (robots != null) {
-
-                    rc.broadcast(4, (int) robots[0].location.x);
-                    rc.broadcast(5, (int) robots[0].location.y);
-
-                } */
-
-                // If there are some...
-                if (robots.length > 0) {
+                if(enemyChecker) {
+                    if (robots.length > 0) {
+                        rc.broadcast(4, (int) robots[0].location.x);
+                        rc.broadcast(5, (int) robots[0].location.y);
+                        enemyChecker = false;
+                    }
+                }else if(robots.length > 0){
                     // And we have enough bullets, and haven't attacked yet this turn...
                     if (rc.canFireSingleShot()) {
                         // ...Then fire a bullet in the direction of the enemy.
                         rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
+
                     }
                 }
 
