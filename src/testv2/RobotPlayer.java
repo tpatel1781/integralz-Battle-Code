@@ -63,7 +63,11 @@ public strictfp class RobotPlayer {
                 MapLocation myLocation = rc.getLocation();
                 rc.broadcast(0, (int) myLocation.x);
                 rc.broadcast(1, (int) myLocation.y);
-
+                RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+                if(robots.length>0){
+                    rc.broadcast(2, (int) robots[0].location.x);
+                    rc.broadcast(3, (int) robots[0].location.y);
+                }
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
 
@@ -319,6 +323,9 @@ public strictfp class RobotPlayer {
         Team enemy = rc.getTeam().opponent();
         boolean friendlyFire = false;
         boolean treeChop = false;
+        boolean container = false;
+        int treeContainer = 0;
+        int k = 0;
         MapLocation treeLoc = new MapLocation(0,0);
         MapLocation empty = new MapLocation(0,0);
         RobotInfo[] lumberjackInfo = new RobotInfo[2];
@@ -344,13 +351,12 @@ public strictfp class RobotPlayer {
                 TreeInfo[] trees = rc.senseNearbyTrees(RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS);
                 if (trees.length > 0) {
                     if (rc.canChop(trees[0].location) && !trees[0].getTeam().equals(rc.getTeam())) {
-                        if(trees[0].containedBullets > 0) {
+                        if(trees[0].containedBullets > 0 || trees[0].containedRobot != null) {
                             rc.broadcast(12, (int) trees[0].location.x);
                             rc.broadcast(13, (int) trees[0].location.y);
                         }
                         rc.chop(trees[0].ID);
                         treeChop = true;
-
                     }
                     // }
                 }
@@ -370,7 +376,7 @@ public strictfp class RobotPlayer {
                     tryMove(toEnemy);
                 }else if (trees.length > 0 && !(treeChop)) {
                     MapLocation myLocation = rc.getLocation();
-                    MapLocation treeLocation = trees[0].location;
+                    MapLocation treeLocation = trees[k].location;
                     Direction toTree = myLocation.directionTo(treeLocation);
                     tryMove(toTree);
                 }else if(!treeChop && !treeLoc.equals(empty)) {
@@ -383,6 +389,7 @@ public strictfp class RobotPlayer {
 
                 friendlyFire = false;
                 treeChop = false;
+                container = false;
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
 
