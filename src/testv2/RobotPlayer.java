@@ -5,7 +5,7 @@ import java.lang.reflect.Array;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
-    static int numScounts = 0;
+    static int numScouts;
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -29,7 +29,7 @@ public strictfp class RobotPlayer {
             case SOLDIER:
                 runSoldier();
                 break;
-            case LUMBERJACK:
+        case LUMBERJACK:
                 runLumberjack();
                 break;
             case TANK:
@@ -52,7 +52,7 @@ public strictfp class RobotPlayer {
                 Direction dir = randomDirection();
 
                 // Randomly attempt to build a gardener in this direction
-                if (rc.canHireGardener(dir) && Math.random() < .01) {
+                if (rc.canHireGardener(dir) && Math.random() < 0.01) {
                     rc.hireGardener(dir);
                 }
 
@@ -95,10 +95,11 @@ public strictfp class RobotPlayer {
                 // Generate a random direction
                 Direction dir = randomDirection();
 
-                if(rc.getRoundNum() <= 150 && numScounts <= 5) {
+                if(rc.getRoundNum() <= 100 && numScouts <= 3) {
                     if (rc.canBuildRobot(RobotType.SCOUT, dir)) {
                         rc.buildRobot(RobotType.SCOUT, dir);
-                        numScounts++;
+                        System.out.println("Number of scouts generated: " + numScouts);
+                        numScouts++;
                     }
                 } else {
                         // Randomly attempt to build a soldier or lumberjack in this direction
@@ -110,8 +111,23 @@ public strictfp class RobotPlayer {
                         }
                     }
 
-                // Move randomly
-                tryMove(randomDirection());
+                // Move in opposite direction of enemy when found
+                // Move in opposite direction of enemy when found
+                RobotInfo[] enemyRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+                if(enemyRobots.length > 0) {
+                    MapLocation myLocation = rc.getLocation();
+                    Direction toEnemy = myLocation.directionTo(enemyRobots[0].location);
+                    MapLocation away = myLocation.subtract(toEnemy);
+                    Direction awayFromEnemy = myLocation.directionTo(away);
+                    tryMove(awayFromEnemy);
+
+                    // Broadcast location to soldiers if enemies found
+                    rc.broadcast(2, (int) enemyRobots[0].location.x);
+                    rc.broadcast(3, (int) enemyRobots[0].location.y);
+                } else {
+                    // Move randomly
+                    tryMove(randomDirection());
+                }
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
