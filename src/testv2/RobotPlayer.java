@@ -121,16 +121,17 @@ public strictfp class RobotPlayer {
     static void runSoldier() throws GameActionException {
         System.out.println("I'm an soldier!");
         Team enemy = rc.getTeam().opponent();
-
+        boolean dead = false;
         // The code you want your robot to perform every round should be in this loop
         while (true) {
             System.out.println("Current Soldier Count:" + rc.readBroadcast(123));
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
 
             try {
-                if (rc.getHealth() < 6 && rc.readBroadcast(123) > 0)
+                if (rc.getHealth() < 6 && rc.readBroadcast(123) > 0 && dead == false)
                 {
                     rc.broadcast(123,rc.readBroadcast(123) - 1);
+                    dead = true;
                 }
                 MapLocation myLocation = rc.getLocation();
 
@@ -212,7 +213,15 @@ public strictfp class RobotPlayer {
                     tryMove(randomDirection());
                 }
 
-
+                TreeInfo[] trees = rc.senseNearbyTrees(-1);
+                if (trees.length > 0) {
+                    if (!trees[0].getTeam().equals(rc.getTeam())) {
+                        if (trees[0].containedBullets > 0 || trees[0].containedRobot != null) {
+                            rc.broadcast(12, (int) trees[0].location.x);
+                            rc.broadcast(13, (int) trees[0].location.y);
+                        }
+                    }
+                }
 
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
