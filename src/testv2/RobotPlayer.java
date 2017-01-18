@@ -315,36 +315,116 @@ public strictfp class RobotPlayer {
     }
 
     static void runTank() throws GameActionException {
-        System.out.println("I'm a tank!");
+        System.out.println("I'm an soldier!");
         Team enemy = rc.getTeam().opponent();
-
+        boolean dead = false;
         // The code you want your robot to perform every round should be in this loop
         while (true) {
-
+            System.out.println("Current tank Count:" + rc.readBroadcast(234));
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
+
             try {
+                if (rc.getHealth() < 6 && rc.readBroadcast(234) > 0 && dead == false)
+                {
+                    rc.broadcast(234,rc.readBroadcast(234) - 1);
+                    dead = true;
+                }
                 MapLocation myLocation = rc.getLocation();
 
                 // See if there are any nearby enemy robots
                 RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
+                RobotInfo[] friendly = rc.senseNearbyRobots(-1,rc.getTeam());
+                MapLocation[] arcArray = rc.getInitialArchonLocations(rc.getTeam());
 
-                // If there are some...
+                MapLocation arcLocation = arcArray[0];
+                // If there are some enemies detected nearby...
                 if (robots.length > 0) {
-                    // And we have enough bullets, and haven't attacked yet this turn...
-                    if (rc.canFireSingleShot()) {
+                    // And we have enough bullets, and haven't attacked yet this turn..
+                    rc.broadcast(2, Math.round(robots[0].location.x));
+                    rc.broadcast(3, Math.round(robots[0].location.y));
+                    RobotInfo[] friends = rc.senseNearbyRobots(-1, rc.getTeam());
+
+                    rc.broadcast(777,rc.getRoundNum());
+
+                    if (rc.canFireTriadShot() && rc.senseNearbyRobots(-1, rc.getTeam()).length == 0 && ((rc.getLocation().directionTo(robots[0].location)).degreesBetween(rc.getLocation().directionTo(arcLocation))) > 90) {
                         // ...Then fire a bullet in the direction of the enemy.
+                        rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
+                    }
+                    else if (rc.canFireSingleShot())
+                    {
                         rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
                     }
                 }
+                else
+                {
+                    if ((rc.getRoundNum()-rc.readBroadcast(777)) > 20)
+                    {
+                        System.out.println("Broadcast:" + (rc.getRoundNum()-rc.readBroadcast(777)));
+                        rc.broadcast(1,0);
+                        rc.broadcast(2,0);
+                    }
+                }
 
-                // Move randomly
-                tryMove(randomDirection());
+                float x = (rc.readBroadcast(2));
+                float y = (rc.readBroadcast(3));
+
+                MapLocation target = new MapLocation(x, y);
+
+                //Movment control conditions and statments, with combat priority
+                //Move towards target if not at range 6, to get into attack range
+                if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 6) && rc.senseNearbyBullets(2).length == 0)
+                {
+                    System.out.println("toward target");
+                    tryMove(myLocation.directionTo(target));
+                }
+                //pull back if too close, within range of 6 or if bullets nearby
+                else if ((rc.readBroadcast(2) > 0) && (6 > (myLocation.distanceTo(target)) || rc.senseNearbyBullets(2).length > 0))
+                {
+                    System.out.println("away from target");
+                    tryMove(rc.getLocation().directionTo(target).opposite());
+                }
+                //Auxilary movment, set distance from archon + spacing
+                //Move towards archon if further than distance of 45 from archon
+                else if (rc.getLocation().distanceTo(arcLocation) > 45 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
+                {
+                    System.out.println("toward archon");
+                    tryMove(rc.getLocation().directionTo(arcLocation));
+                }
+                //Move away from archon if closer than distance 35 from archon
+                else if (rc.getLocation().distanceTo(arcLocation) < 35 && rc.canMove(rc.getLocation().directionTo(arcLocation).opposite()))
+                {
+                    System.out.println("away from archon");
+                    tryMove(rc.getLocation().directionTo(arcLocation).opposite());
+                }
+
+                //Move away from friendly[0] if soldier, need better way to do this
+                else if (friendly.length > 0 && friendly[0].type == RobotType.SOLDIER)
+                {
+                    tryMove(rc.getLocation().directionTo(friendly[0].location).opposite());
+                }
+
+                else
+                {
+                    System.out.println("random");
+                    tryMove(randomDirection());
+                }
+
+                TreeInfo[] trees = rc.senseNearbyTrees(-1);
+                if (trees.length > 0) {
+                    if (!trees[0].getTeam().equals(rc.getTeam())) {
+                        if (trees[0].containedBullets > 0 || trees[0].containedRobot != null) {
+                            rc.broadcast(12, (int) trees[0].location.x);
+                            rc.broadcast(13, (int) trees[0].location.y);
+                        }
+                    }
+                }
+
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
 
             } catch (Exception e) {
-                System.out.println("Tank Exception");
+                System.out.println("Soldier Exception");
                 e.printStackTrace();
             }
         }
