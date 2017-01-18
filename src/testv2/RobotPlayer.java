@@ -5,7 +5,7 @@ import java.lang.reflect.Array;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
-
+    static int numScounts = 0;
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -95,13 +95,20 @@ public strictfp class RobotPlayer {
                 // Generate a random direction
                 Direction dir = randomDirection();
 
-                // Randomly attempt to build a soldier or lumberjack in this direction
-                if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() > 0.5) {
-                    rc.buildRobot(RobotType.SOLDIER, dir);
-                    rc.broadcast(123, rc.readBroadcast(123) + 1);
-                } else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && rc.isBuildReady()) {
-                    rc.buildRobot(RobotType.LUMBERJACK, dir);
-                }
+                if(rc.getRoundNum() <= 150 && numScounts <= 5) {
+                    if (rc.canBuildRobot(RobotType.SCOUT, dir)) {
+                        rc.buildRobot(RobotType.SCOUT, dir);
+                        numScounts++;
+                    }
+                } else {
+                        // Randomly attempt to build a soldier or lumberjack in this direction
+                        if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() > 0.5) {
+                            rc.buildRobot(RobotType.SOLDIER, dir);
+                            rc.broadcast(123, rc.readBroadcast(123) + 1);
+                        } else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && rc.isBuildReady()) {
+                            rc.buildRobot(RobotType.LUMBERJACK, dir);
+                        }
+                    }
 
                 // Move randomly
                 tryMove(randomDirection());
