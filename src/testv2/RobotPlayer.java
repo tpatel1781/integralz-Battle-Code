@@ -367,14 +367,13 @@ public strictfp class RobotPlayer {
                 TreeInfo[] trees = rc.senseNearbyTrees(RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS);
                 if (trees.length > 0) {
                     if (rc.canChop(trees[0].location) && !trees[0].getTeam().equals(rc.getTeam())) {
-                        if(trees[0].containedBullets > 0 || trees[0].containedRobot != null) {
+                        if (trees[0].containedBullets > 0 || trees[0].containedRobot != null) {
                             rc.broadcast(12, (int) trees[0].location.x);
                             rc.broadcast(13, (int) trees[0].location.y);
                         }
                         rc.chop(trees[0].ID);
                         treeChop = true;
                     }
-                    // }
                 }
                 // No close robots, so search for robots within sight radius
                 robots = rc.senseNearbyRobots(-1, enemy);
