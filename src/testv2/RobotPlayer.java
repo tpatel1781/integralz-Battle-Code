@@ -5,7 +5,7 @@ import java.lang.reflect.Array;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
-    static int numScouts;
+    static int numScouts = 0;
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -52,7 +52,10 @@ public strictfp class RobotPlayer {
                 Direction dir = randomDirection();
 
                 // Randomly attempt to build a gardener in this direction
-                if (rc.canHireGardener(dir) && Math.random() < 0.01) {
+
+                if (rc.canHireGardener(dir) && rc.getRoundNum() <= 150) {
+                    rc.hireGardener(dir);
+                } else if (rc.canHireGardener(dir) && Math.random() < 0.01) {
                     rc.hireGardener(dir);
                 }
 
@@ -95,7 +98,7 @@ public strictfp class RobotPlayer {
                 // Generate a random direction
                 Direction dir = randomDirection();
 
-                if(rc.getRoundNum() <= 100 && numScouts <= 3) {
+                if(rc.getRoundNum() <= 100 && numScouts < 1) {
                     if (rc.canBuildRobot(RobotType.SCOUT, dir)) {
                         rc.buildRobot(RobotType.SCOUT, dir);
                         System.out.println("Number of scouts generated: " + numScouts);
@@ -197,34 +200,34 @@ public strictfp class RobotPlayer {
 
                 MapLocation target = new MapLocation(x, y);
 
-                //Movment control conditions and statments, with combat priority
-                //Move towards target if not at range 6, to get into attack range
+                // Movement control conditions and statments, with combat priority
+                // Move towards target if not at range 6, to get into attack range
                 if ((rc.readBroadcast(2) > 0) && (myLocation.distanceTo(target) > 6) && rc.senseNearbyBullets(2).length == 0)
                 {
                     System.out.println("toward target");
                     tryMove(myLocation.directionTo(target));
                 }
-                //pull back if too close, within range of 6 or if bullets nearby
+                // Pull back if too close, within range of 6 or if bullets nearby
                 else if ((rc.readBroadcast(2) > 0) && (6 > (myLocation.distanceTo(target)) || rc.senseNearbyBullets(2).length > 0))
                 {
                     System.out.println("away from target");
                     tryMove(rc.getLocation().directionTo(target).opposite());
                 }
-                //Auxilary movment, set distance from archon + spacing
-                //Move towards archon if further than distance of 45 from archon
+                // Auxiliary movement, set distance from archon + spacing
+                // Move towards archon if further than distance of 45 from archon
                 else if (rc.getLocation().distanceTo(arcLocation) > 45 && rc.canMove(rc.getLocation().directionTo(arcLocation)))
                 {
                     System.out.println("toward archon");
                     tryMove(rc.getLocation().directionTo(arcLocation));
                 }
-                    //Move away from archon if closer than distance 35 from archon
+                    // Move away from archon if closer than distance 35 from archon
                 else if (rc.getLocation().distanceTo(arcLocation) < 35 && rc.canMove(rc.getLocation().directionTo(arcLocation).opposite()))
                 {
                     System.out.println("away from archon");
                     tryMove(rc.getLocation().directionTo(arcLocation).opposite());
                 }
 
-                    //Move away from friendly[0] if soldier, need better way to do this
+                    // Move away from friendly[0] if soldier, need better way to do this
                 else if (friendly.length > 0 && friendly[0].type == RobotType.SOLDIER)
                 {
                     tryMove(rc.getLocation().directionTo(friendly[0].location).opposite());
@@ -268,17 +271,24 @@ public strictfp class RobotPlayer {
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
-                MapLocation myLocation = rc.getLocation();
 
                 // See if there are any nearby enemy robots
                 RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
-                TreeInfo[] trees = rc.senseNearbyTrees(-1);
 
+                // Make array of all nearby trees and get bullets from them
+                TreeInfo[] trees = rc.senseNearbyTrees(-1);
+                MapLocation treeLocation;
                 if(treeChecker && trees.length > 0) {
                         rc.broadcast(12, (int) trees[0].location.x);
                         rc.broadcast(13, (int) trees[0].location.y);
-                        treeChecker = false;
-
+                        for (int i=0; i<=trees.length-1; i++) {
+                            if (trees[i].containedBullets > 0) {
+                                treeLocation = trees[i].getLocation();
+                                rc.move(treeLocation);
+                                rc.shake(treeLocation);
+                            }
+                        }
+                    treeChecker = false;
                 }
 
                 if(enemyChecker) {
@@ -510,7 +520,7 @@ public strictfp class RobotPlayer {
             }
         }
     }
-
+//    static void moveShake()
     /**
      * Returns a random Direction
      *
